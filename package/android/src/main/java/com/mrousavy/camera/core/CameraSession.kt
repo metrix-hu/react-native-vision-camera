@@ -342,7 +342,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val size = sizes.closestToOrMax(Size(1280, 720))
 
       Log.i(TAG, "Adding ${size.width} x ${size.height} CodeScanner Output in Format #$imageFormat...")
-      val pipeline = CodeScannerPipeline(size, imageFormat, codeScanner.config, callback)
+      val pipeline = CodeScannerPipeline(size, orientation, imageFormat, codeScanner.config, callback)
       val output = BarcodeScannerOutput(pipeline)
       outputs.add(output.toOutputConfiguration(characteristics))
       codeScannerOutput = output

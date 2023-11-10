@@ -12,6 +12,7 @@ import java.io.Closeable
 
 class CodeScannerPipeline(
   val size: Size,
+  val orientation: Orientation,
   val format: Int,
   val configuration: CameraConfiguration.CodeScanner,
   val callback: CameraSession.CameraSessionCallback
@@ -49,14 +50,17 @@ class CodeScannerPipeline(
       }
 
       isBusy = true
-      // TODO: Get correct orientation
-      val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
+      // TODO: We probably still need to calculate with device orientation, but at least we use sensor orientation now,
+      // so it should work on all devices when the app is in portrait mode.
+      val inputImage = InputImage.fromMediaImage(image, orientation.toDegrees())
       scanner.process(inputImage)
         .addOnSuccessListener { barcodes ->
           image.close()
           isBusy = false
-          if (barcodes.isNotEmpty()) {
+          if (orientation == Orientation.LANDSCAPE_LEFT || orientation == Orientation.LANDSCAPE_RIGHT) {
             callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
+          } else {
+            callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.height, inputImage.width))
           }
         }
         .addOnFailureListener { error ->
